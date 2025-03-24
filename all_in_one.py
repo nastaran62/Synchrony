@@ -6,6 +6,9 @@ from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message
 from octopus_sensing.devices import Shimmer3Streaming
 
+experiment_id = "1"
+Pair = "1"
+
 # Define colors
 white = (255, 255, 255)
 black = (0, 0, 0)
@@ -29,13 +32,45 @@ def pygame_initialize():
 
     # Generate random order for numbers 1 to 10
     numbers = list(range(1, 10))
+    #shapes = ['circle', 'square', 'triangle', 'rectangle', 'pentagon', 'hexagon', 'diamond', 'star', 'heart']
+    #random.shuffle(shapes)
 
-    print(numbers)
-    random.shuffle(numbers)
-    print(numbers)
+    items = []
+    # p1 leader, p2 follower
+    if experiment_id == "1":
+        items = numbers
+        items.extend(numbers)
+        items.extend(numbers)
+        print(items)
+    # p1 folower, p2 leader
+    elif experiment_id == "2":
+        items = numbers
+        items.extend(numbers)
+        items.extend(numbers)
+        print(items)
+    # p1 leader, p2 leader
+    elif experiment_id == "3":
+        items = numbers
+        items.extend(numbers)
+        items.extend(numbers)
+        random.shuffle(items)
+        print(items)
+    # p1 folower, p2 leader
+    elif experiment_id == "4":
+        items = numbers
+        items.extend(numbers)
+        items.extend(numbers)
+        random.shuffle(items)
+        print(items)
+    # p1 leader, p2 folower
+    elif experiment_id == "5":
+        items = ["Free"]
+    # p1 folower, p2 leader
+    elif experiment_id == "6":
+        items = ["Free"]
 
 
-    return screen, font, numbers
+    return screen, font, items
 
     # Function to display a number
 def display_number(number, screen, font):
@@ -47,8 +82,8 @@ def display_number(number, screen, font):
 
 def main():
     screen, font, numbers = pygame_initialize()
-    experiment_id = "1"
-    stimuli_id = "1"
+    # 1: Zane numbers, 2: Carl numbers, 3: Zane leader free, 4: Carl leader free
+
 
     # Main loop to display numbers
     current_index = -1
@@ -56,23 +91,23 @@ def main():
 
     try:
         # Defining sensors
-        my_mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path="./output", saving_mode=0)
-        my_mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030132", 250, output_path="./output", saving_mode=0)
+        my_mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path="./pair{0}".format(Pair), saving_mode=0)
+        my_mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030132", 250, output_path="./pair{0}".format(Pair), saving_mode=0)
 
         my_shimmer1 = Shimmer3Streaming(name="shimmer1",
                                         saving_mode=0,
-                                        serial_port="/dev/rfcomm0",
-                                        output_path="./output")
+                                        serial_port="/dev/rfcomm3",
+                                        output_path="./pair{0}".format(Pair))
         my_shimmer2 = Shimmer3Streaming(name="shimmer2",
                                         saving_mode=0,
                                         serial_port="/dev/rfcomm2",
-                                        output_path="./output")
+                                        output_path="./pair{0}".format(Pair))
 
 
         # Defining device coordinator and adding sensors to it
         device_coordinator = DeviceCoordinator()
         #device_coordinator.add_devices([my_mBrain1, my_mBrain2])
-        device_coordinator.add_devices([my_mBrain1])
+        device_coordinator.add_devices([my_shimmer1, my_shimmer2])
 
 
         screen.fill(white)  # Clear the screen with white background
