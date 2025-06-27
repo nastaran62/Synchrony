@@ -6,8 +6,10 @@ env
 *.eeg-info
 *.pyc
 *.lock
+Pipfile-first
 
 .vscode
 output
 not_git
+pair*
 

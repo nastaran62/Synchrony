@@ -5,6 +5,7 @@ from octopus_sensing.devices import LslStreaming
 from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message
 from octopus_sensing.devices import Shimmer3Streaming
+from octopus_sensing.devices import TobiiGlassesStreaming
 from octopus_sensing.devices.network_devices.http_device import HttpNetworkDevice, SerializationTypes
 
 # experiment_id = "1"  : numbers # p1 leader, p2 follower
@@ -130,24 +131,30 @@ def main():
     try:
         # Defining sensors
         
-        my_mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path="./pair{0}".format(Pair), saving_mode=0)
-        my_mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030132", 250, output_path="./pair{0}".format(Pair), saving_mode=0)
+        mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path="./pair{0}".format(Pair), saving_mode=0)
+        mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030132", 250, output_path="./pair{0}".format(Pair), saving_mode=0)
 
-        my_shimmer1 = Shimmer3Streaming(name="shimmer1",
+        shimmer1 = Shimmer3Streaming(name="shimmer1",
                                         saving_mode=0,
                                         serial_port="/dev/rfcomm3",
                                         output_path="./pair{0}".format(Pair))
-        my_shimmer2 = Shimmer3Streaming(name="shimmer2",
+        shimmer2 = Shimmer3Streaming(name="shimmer2",
                                         saving_mode=0,
                                         serial_port="/dev/rfcomm2",
                                         output_path="./pair{0}".format(Pair))
+        tobii1 = TobiiGlassesStreaming("192.168.71.50",
+                                       50,
+                                       name="tobii1",
+                                       saving_mode=0,
+                                       output_path="./pair{0}".format(Pair))
         
 
         # Defining device coordinator and adding sensors to it
+        remote_device = HttpNetworkDevice(["http://localhost:9331"], serialization_type=SerializationTypes.PICKLE)
         device_coordinator = DeviceCoordinator()
 
         # All
-        #device_coordinator.add_devices([my_mBrain1, my_mBrain2, my_shimmer1, my_shimmer2])
+        device_coordinator.add_devices([mBrain1, mBrain2, shimmer1, shimmer2, tobii1, remote_device])
         # Only mBrain
         #device_coordinator.add_devices([my_mBrain1, my_mBrain2])
         # Only Shimmer

@@ -4,9 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-octopus-sensing = "4.2.5"
+octopus-sensing = "4.3.0"
 pygame = "*"
-octopus-sensing-monitoring = "1.2.1"
 
 [dev-packages]
 
