@@ -3,7 +3,7 @@ import random
 import time
 from octopus_sensing.devices import LslStreaming
 from octopus_sensing.device_coordinator import DeviceCoordinator
-from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message
+from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message, save_message
 from octopus_sensing.devices import Shimmer3Streaming
 from octopus_sensing.devices import TobiiGlassesStreaming
 from octopus_sensing.devices.network_devices.http_device import HttpNetworkDevice, SerializationTypes
@@ -19,8 +19,9 @@ from octopus_sensing.devices.network_devices.http_device import HttpNetworkDevic
 # experiment_id = "9"  : shuffled shapes # p1 leader, p2 leader
 # experiment_id = "10" : shuffled shapes # p1 follower, p2 leader
 
-experiment_id = "10"
+experiment_id = "1"
 Pair = "1"
+rest_index = 2  # Number of items before rest
 
 # Define colors
 white = (255, 255, 255)
@@ -44,7 +45,7 @@ def pygame_initialize():
     #font = pygame.font.Font('freesansbold.ttf', 32)
 
     # Generate random order for numbers 1 to 10
-    numbers = list(range(1, 10))
+    numbers = list(range(1, 4))
     shapes = ['Circle', 'Square', 'Triangle', 'Rectangle', 'Pentagon', 'Hexagon', 'Diamond', 'Star', 'Heart']
     #random.shuffle(shapes)
 
@@ -52,27 +53,27 @@ def pygame_initialize():
     # p1 leader, p2 follower
     if experiment_id == "1":
         items = numbers
-        items.extend(numbers)
-        items.extend(numbers)
+        #items.extend(numbers)
+        #items.extend(numbers)
         print(items)
     # p1 folower, p2 leader
     elif experiment_id == "2":
         items = numbers
-        items.extend(numbers)
-        items.extend(numbers)
+        #items.extend(numbers)
+        #items.extend(numbers)
         print(items)
     # p1 leader, p2 leader
     elif experiment_id == "3":
         items = numbers
-        items.extend(numbers)
-        items.extend(numbers)
+        #items.extend(numbers)
+        #items.extend(numbers)
         random.shuffle(items)
         print(items)
     # p1 folower, p2 leader
     elif experiment_id == "4":
         items = numbers
-        items.extend(numbers)
-        items.extend(numbers)
+        #items.extend(numbers)
+        #items.extend(numbers)
         random.shuffle(items)
         print(items)
     # p1 leader, p2 folower
@@ -84,27 +85,27 @@ def pygame_initialize():
     # p1 leader, p2 leader
     elif experiment_id == "7":
         items = shapes
-        items.extend(shapes)
-        items.extend(shapes)
+        #items.extend(shapes)
+        #items.extend(shapes)
         print(items)
     # p1 folower, p2 leader
     elif experiment_id == "8":
         items = shapes
-        items.extend(shapes)
-        items.extend(shapes)
+        #items.extend(shapes)
+        #items.extend(shapes)
         print(items)
     # p1 leader, p2 leader
     elif experiment_id == "9":
         items = shapes
-        items.extend(shapes)
-        items.extend(shapes)
+        #items.extend(shapes)
+        #items.extend(shapes)
         random.shuffle(items)
         print(items)
     # p1 folower, p2 leader
     elif experiment_id == "10":
         items = shapes
-        items.extend(shapes)
-        items.extend(shapes)
+        #items.extend(shapes)
+        #items.extend(shapes)
         random.shuffle(items)
         print(items)
 
@@ -130,7 +131,7 @@ def main():
 
     try:
         # Defining sensors
-        
+        '''
         mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path="./pair{0}".format(Pair), saving_mode=0)
         mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030132", 250, output_path="./pair{0}".format(Pair), saving_mode=0)
 
@@ -142,6 +143,7 @@ def main():
                                         saving_mode=0,
                                         serial_port="/dev/rfcomm2",
                                         output_path="./pair{0}".format(Pair))
+        '''    
         tobii1 = TobiiGlassesStreaming("192.168.71.50",
                                        50,
                                        name="tobii1",
@@ -150,11 +152,11 @@ def main():
         
 
         # Defining device coordinator and adding sensors to it
-        remote_device = HttpNetworkDevice(["http://localhost:9331"], serialization_type=SerializationTypes.PICKLE)
+        #remote_device = HttpNetworkDevice(["http://localhost:9331"], serialization_type=SerializationTypes.PICKLE)
         device_coordinator = DeviceCoordinator()
 
         # All
-        device_coordinator.add_devices([mBrain1, mBrain2, shimmer1, shimmer2, tobii1, remote_device])
+        device_coordinator.add_devices([tobii1])
         # Only mBrain
         #device_coordinator.add_devices([my_mBrain1, my_mBrain2])
         # Only Shimmer
@@ -181,9 +183,9 @@ def main():
                         elif not rest:
                             print(f" stop {numbers[current_index]}, INDEX {current_index}")
                             device_coordinator.dispatch(stop_message(experiment_id, numbers[current_index]))
-                            if (current_index+1)%5 == 0 and rest is False:
+                            if (current_index+1)%rest_index == 0 and rest is False:
                                 rest = True
-                                device_coordinator.dispatch(terminate_message())
+                                device_coordinator.dispatch(save_message(experiment_id))
                                 display("Rest", screen, font)
                                 break
 
