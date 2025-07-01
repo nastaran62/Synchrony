@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 
-octopus-sensing = "4.3.1"
+octopus-sensing = "4.3.2"
 pygame = "*"
 
 [dev-packages]
