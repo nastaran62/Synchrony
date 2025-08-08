@@ -19,6 +19,9 @@ from octopus_sensing.devices.network_devices.http_device import HttpNetworkDevic
 # experiment_id = "9"  : shuffled shapes # p1 leader, p2 leader
 # experiment_id = "10" : shuffled shapes # p1 follower, p2 leader
 
+# p1: Carl tobii1-port1 , com5-20E1,  Android_EEG_030133
+# p2: Zane tobii2-port2 , com4-92F9,  ECL
+
 experiment_id = "1"
 Pair = "02"
 rest_index = 9  # Number of items before rest
@@ -130,11 +133,11 @@ def main():
 
         shimmer1 = Shimmer3Streaming(name="shimmer1",
                                         saving_mode=0,
-                                        serial_port="Com4",
+                                        serial_port="Com5",
                                         output_path="./output/pair{0}".format(Pair))
         shimmer2 = Shimmer3Streaming(name="shimmer2",
                                         saving_mode=0,
-                                        serial_port="Com5",
+                                        serial_port="Com4",
                                         output_path="./output/pair{0}".format(Pair))
             
         tobii1 = TobiiGlassesStreaming("192.168.1.214",
