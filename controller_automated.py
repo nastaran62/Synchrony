@@ -154,7 +154,7 @@ def main():
         device_coordinator = DeviceCoordinator()
 
         # All
-        device_coordinator.add_devices([shimmer1, shimmer2, tobii1, tobii2])
+        device_coordinator.add_devices([mBrain1, mBrain2, shimmer1, shimmer2, tobii1, tobii2])
 
         screen.fill(white)  # Clear the screen with white background
         pygame.display.flip()
@@ -178,10 +178,6 @@ def main():
                                 rest = True
                                 device_coordinator.dispatch(save_message(experiment_id))
                                 display("Rest", screen, font)
-                                current_index += 1  # Move to the next number
-                                if current_index >= len(numbers):  # Loop back to the start
-                                    running = False
-                                    break
                                 break
 
                         rest = False
