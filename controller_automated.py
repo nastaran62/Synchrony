@@ -20,8 +20,8 @@ from octopus_sensing.devices.network_devices.http_device import HttpNetworkDevic
 # experiment_id = "10" : shuffled shapes # p1 follower, p2 leader
 
 experiment_id = "1"
-Pair = "1"
-rest_index = 2  # Number of items before rest
+Pair = "02"
+rest_index = 9  # Number of items before rest
 
 # Define colors
 white = (255, 255, 255)
@@ -45,7 +45,8 @@ def pygame_initialize():
     #font = pygame.font.Font('freesansbold.ttf', 32)
 
     # Generate random order for numbers 1 to 10
-    numbers = list(range(1, 4))
+    numbers = list(range(1, 10))
+    print(numbers) 
     shapes = ['Circle', 'Square', 'Triangle', 'Rectangle', 'Pentagon', 'Hexagon', 'Diamond', 'Star', 'Heart']
     #random.shuffle(shapes)
 
@@ -53,27 +54,23 @@ def pygame_initialize():
     # p1 leader, p2 follower
     if experiment_id == "1":
         items = numbers
-        #items.extend(numbers)
-        #items.extend(numbers)
+        items = items * 3  # Repeat the numbers three times
         print(items)
     # p1 folower, p2 leader
     elif experiment_id == "2":
         items = numbers
-        #items.extend(numbers)
-        #items.extend(numbers)
+        items = items * 3  # Repeat the numbers three times
         print(items)
     # p1 leader, p2 leader
     elif experiment_id == "3":
         items = numbers
-        #items.extend(numbers)
-        #items.extend(numbers)
+        items = items * 3  # Repeat the numbers three times
         random.shuffle(items)
         print(items)
     # p1 folower, p2 leader
     elif experiment_id == "4":
         items = numbers
-        #items.extend(numbers)
-        #items.extend(numbers)
+        items = items * 3  # Repeat the numbers three times
         random.shuffle(items)
         print(items)
     # p1 leader, p2 folower
@@ -85,27 +82,23 @@ def pygame_initialize():
     # p1 leader, p2 leader
     elif experiment_id == "7":
         items = shapes
-        #items.extend(shapes)
-        #items.extend(shapes)
+        items = items * 3  # Repeat the numbers three times
         print(items)
     # p1 folower, p2 leader
     elif experiment_id == "8":
         items = shapes
-        #items.extend(shapes)
-        #items.extend(shapes)
+        items = items * 3  # Repeat the numbers three times
         print(items)
     # p1 leader, p2 leader
     elif experiment_id == "9":
         items = shapes
-        #items.extend(shapes)
-        #items.extend(shapes)
+        items = items * 3  # Repeat the numbers three times
         random.shuffle(items)
         print(items)
     # p1 folower, p2 leader
     elif experiment_id == "10":
         items = shapes
-        #items.extend(shapes)
-        #items.extend(shapes)
+        items = items * 3  # Repeat the numbers three times
         random.shuffle(items)
         print(items)
 
@@ -131,24 +124,29 @@ def main():
 
     try:
         # Defining sensors
-        '''
-        mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path="./pair{0}".format(Pair), saving_mode=0)
-        mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030132", 250, output_path="./pair{0}".format(Pair), saving_mode=0)
+        
+        mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path="./output/pair{0}".format(Pair), saving_mode=0)
+        mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030133", 250, output_path="./output/pair{0}".format(Pair), saving_mode=0)
 
         shimmer1 = Shimmer3Streaming(name="shimmer1",
                                         saving_mode=0,
-                                        serial_port="/dev/rfcomm3",
-                                        output_path="./pair{0}".format(Pair))
+                                        serial_port="Com4",
+                                        output_path="./output/pair{0}".format(Pair))
         shimmer2 = Shimmer3Streaming(name="shimmer2",
                                         saving_mode=0,
-                                        serial_port="/dev/rfcomm2",
-                                        output_path="./pair{0}".format(Pair))
-        '''    
-        tobii1 = TobiiGlassesStreaming("192.168.71.50",
+                                        serial_port="Com5",
+                                        output_path="./output/pair{0}".format(Pair))
+            
+        tobii1 = TobiiGlassesStreaming("192.168.1.214",
                                        50,
                                        name="tobii1",
                                        saving_mode=0,
-                                       output_path="./pair{0}".format(Pair))
+                                       output_path="./output/pair{0}".format(Pair))
+        tobii2 = TobiiGlassesStreaming("192.168.1.232",
+                                       50,
+                                       name="tobii2",
+                                       saving_mode=0,
+                                       output_path="./output/pair{0}".format(Pair))
         
 
         # Defining device coordinator and adding sensors to it
@@ -156,14 +154,7 @@ def main():
         device_coordinator = DeviceCoordinator()
 
         # All
-        device_coordinator.add_devices([tobii1])
-        # Only mBrain
-        #device_coordinator.add_devices([my_mBrain1, my_mBrain2])
-        # Only Shimmer
-        #device_coordinator.add_devices([my_shimmer1, my_shimmer2])
-
-        device_coordinator.add_devices([])
-
+        device_coordinator.add_devices([shimmer1, shimmer2, tobii1, tobii2])
 
         screen.fill(white)  # Clear the screen with white background
         pygame.display.flip()
@@ -187,12 +178,17 @@ def main():
                                 rest = True
                                 device_coordinator.dispatch(save_message(experiment_id))
                                 display("Rest", screen, font)
+                                current_index += 1  # Move to the next number
+                                if current_index >= len(numbers):  # Loop back to the start
+                                    running = False
+                                    break
                                 break
 
                         rest = False
                         display("+", screen, font)
                         time.sleep(2)
-                        display(numbers[current_index], screen, font)  # Update the display
+                        print("current_index", current_index)
+                        display(numbers[current_index+1], screen, font)  # Update the display
                         current_index += 1  # Move to the next number
                         if current_index >= len(numbers):  # Loop back to the start
                             running = False
