@@ -53,59 +53,41 @@ def pygame_initialize():
     shapes = ['Circle', 'Square', 'Triangle', 'Rectangle', 'Pentagon', 'Hexagon', 'Diamond', 'Star', 'Heart']
     #random.shuffle(shapes)
 
-    items = []
-    # p1 leader, p2 follower
-    if experiment_id == "1":
-        items = numbers
-        items = items * 2  # Repeat the numbers three times
-        print(items)
-    # p1 folower, p2 leader
-    elif experiment_id == "2":
-        items = numbers
-        items = items * 2  # Repeat the numbers three times
-        print(items)
-    # p1 leader, p2 leader
-    elif experiment_id == "3":
-        items = numbers
-        items = items * 2  # Repeat the numbers three times
-        random.shuffle(items)
-        print(items)
-    # p1 folower, p2 leader
-    elif experiment_id == "4":
-        items = numbers
-        items = items * 2  # Repeat the numbers three times
-        random.shuffle(items)
-        print(items)
-    # p1 leader, p2 folower
-    elif experiment_id == "5":
-        items = ["Free"]
-    # p1 folower, p2 leader
-    elif experiment_id == "6":
-        items = ["Free"]
-    # p1 leader, p2 leader
-    elif experiment_id == "7":
-        items = shapes
-        items = items * 2  # Repeat the numbers three times
-        print(items)
-    # p1 folower, p2 leader
-    elif experiment_id == "8":
-        items = shapes
-        items = items * 2  # Repeat the numbers three times
-        print(items)
-    # p1 leader, p2 leader
-    elif experiment_id == "9":
-        items = shapes
-        items = items * 2  # Repeat the numbers three times
-        random.shuffle(items)
-        print(items)
-    # p1 folower, p2 leader
-    elif experiment_id == "10":
-        items = shapes
-        items = items * 2  # Repeat the numbers three times
-        random.shuffle(items)
-        print(items)
+    E1 = numbers
+    E1 = E1 * 2
+
+    E2 = numbers
+    E2 = E2 * 2
+
+    items = numbers
+    random.shuffle(items)
+    E3 = items * 2
+
+    items = numbers
+    random.shuffle(items)
+    E4 = items * 2
 
 
+    E5 = ["Free"]
+    E6 = ["Free"]
+
+    E7 = shapes
+    E7 = E7 * 2
+
+    E8 = shapes
+    E8 = E8 * 2
+
+    E9 = shapes
+    random.shuffle(E9)
+    E9 = E9 * 2
+
+    E10 = shapes
+    random.shuffle(E10)
+    E10 = E10 * 2
+
+    block1 = [E1, E2, E7, E8]
+    block2 = [E3, E4, E9, E10]
+    block3 = [E5, E6]
     return screen, font, items
 
     # Function to display a number
