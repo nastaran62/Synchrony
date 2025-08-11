@@ -1,4 +1,5 @@
 import pygame
+import argparse
 import random
 import time
 from octopus_sensing.devices import LslStreaming
@@ -22,8 +23,6 @@ from octopus_sensing.devices.network_devices.http_device import HttpNetworkDevic
 # p1: Carl tobii1-port1 , com5-20E1 or com11-92D4  Android_EEG_030133
 # p2: Zane tobii2-port2 , com4-92F9,  ECL
 
-experiment_id = "1"
-Pair = "04"
 rest_index = 9  # Number of items before rest
 
 # Define colors
@@ -34,7 +33,7 @@ blue = (0, 0, 128)
 window_width = 1500
 window_height = 900
 
-def pygame_initialize():
+def initialize():
     # Initialize Pygame
     pygame.init()
 
@@ -53,6 +52,7 @@ def pygame_initialize():
     shapes = ['Circle', 'Square', 'Triangle', 'Rectangle', 'Pentagon', 'Hexagon', 'Diamond', 'Star', 'Heart']
     #random.shuffle(shapes)
 
+    E5 = ["Free"] * 2
     E1 = numbers
     E1 = E1 * 2
 
@@ -66,10 +66,6 @@ def pygame_initialize():
     items = numbers
     random.shuffle(items)
     E4 = items * 2
-
-
-    E5 = ["Free"]
-    E6 = ["Free"]
 
     E7 = shapes
     E7 = E7 * 2
@@ -85,12 +81,46 @@ def pygame_initialize():
     random.shuffle(E10)
     E10 = E10 * 2
 
+    block0_desc = ["E51", "E52"]
     block1 = [E1, E2, E7, E8]
+    block1_desc = ["E1", "E2", "E7", "E8"]
     block2 = [E3, E4, E9, E10]
-    block3 = [E5, E6]
-    return screen, font, items
+    block2_desc = ["E3", "E4", "E9", "E10"]
+    free = [["Free"]] * 2
+    block3_desc = ["E61", "E62"]
+    
+    return screen, font, [free, block1, block2, free], [block0_desc, block1_desc, block2_desc, block3_desc]
 
     # Function to display a number
+
+def get_description(experiment_id):
+    if experiment_id == "E51":
+        return "Free movement, p1 leader, p2 follower"  
+    
+    elif experiment_id == "E52":
+        return "Free movement, p1 follower, p2 leader"
+    elif experiment_id == "E1":
+        return "Numbers, p1 leader, p2 follower"
+    elif experiment_id == "E2":
+        return "Numbers, p1 follower, p2 leader"
+    elif experiment_id == "E3":
+        return "Shuffled numbers, p1 leader, p2 leader"
+    elif experiment_id == "E4":
+        return "Shuffled numbers, p1 follower, p2 leader"
+    elif experiment_id == "E61":
+        return "Free movement, p1 leader, p2 follower"
+    elif experiment_id == "E62":
+        return "Free movement, p1 follower, p2 leader"
+    elif experiment_id == "E7":
+        return "Shapes, p1 leader, p2 follower"
+    elif experiment_id == "E8":
+        return "Shapes, p1 follower, p2 leader"
+    elif experiment_id == "E9":
+        return "Shuffled shapes, p1 leader, p2 leader"
+    elif experiment_id == "E10":
+        return "Shuffled shapes, p1 follower, p2 leader"
+    
+
 def display(content, screen, font):
     screen.fill(white)  # Clear the screen with white background
     text = font.render(str(content), True, blue)
@@ -99,45 +129,59 @@ def display(content, screen, font):
     pygame.display.flip()
 
 def main():
-    screen, font, numbers = pygame_initialize()
-    # 1: Zane numbers, 2: Carl numbers, 3: Zane leader free, 4: Carl leader free
+    parser = argparse.ArgumentParser()
+    parser.add_argument("block", help="Block number(0, 1, 2, or 3), 1 ordered, 2 shuffled", type=int)
+    parser.add_argument("pair", help="pair id (p01, p02, ...)", type=str)
+    args = parser.parse_args()
+    screen, font, blocks, blocks_desc = initialize()
+
+    block_id = args.block
+    pair = args.pair
+    block = blocks[block_id]
+    block_desc = blocks_desc[block_id]
+
+    print(f"Running block {block_id} with pair {pair}")
+    print(f"Block description: {block_desc}")
 
 
-    # Main loop to display numbers
-    current_index = -1
-    start_flag = False
+    # Zip them together, shuffle, then unzip
+    paired = list(zip(block, block_desc))
+    random.shuffle(paired)
+    block, block_desc = zip(*paired)
+    print(f"Block description: {block_desc}")
+
 
     try:
         # Defining sensors
         
-        mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path="./output/pair{0}".format(Pair), saving_mode=0)
-        mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030133", 250, output_path="./output/pair{0}".format(Pair), saving_mode=0)
+        mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path=f"./output/pair{pair}", saving_mode=0)
+        mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030133", 250, output_path=f"./output/pair{pair}", saving_mode=0)
 
         #shimmer1 = Shimmer3Streaming(name="shimmer1",
         #                                saving_mode=0,
         #                                serial_port="Com5",
-        #                                output_path="./output/pair{0}".format(Pair))
+        #                                output_path=f"./output/pair{pair}")
         
         #shimmer1 = Shimmer3Streaming(name="shimmer1",
         #                                saving_mode=0,
         #                                serial_port="Com11",
-        #                                output_path="./output/pair{0}".format(Pair))
+        #                                output_path=f"./output/pair{pair}")
 
         #shimmer2 = Shimmer3Streaming(name="shimmer2",
         #                                saving_mode=0,
         #                                serial_port="Com4",
-        #                                output_path="./output/pair{0}".format(Pair))
+        #                                output_path=f"./output/pair{pair}")
             
         tobii1 = TobiiGlassesStreaming("192.168.1.214",
                                        50,
                                        name="tobii1",
                                        saving_mode=0,
-                                       output_path="./output/pair{0}".format(Pair))
+                                       output_path=f"./output/pair{pair}")
         tobii2 = TobiiGlassesStreaming("192.168.1.232",
                                        50,
                                        name="tobii2",
                                        saving_mode=0,
-                                       output_path="./output/pair{0}".format(Pair))
+                                       output_path=f"./output/pair{pair}")
         
 
         # Defining device coordinator and adding sensors to it
@@ -145,46 +189,55 @@ def main():
         device_coordinator = DeviceCoordinator()
 
         # All
-        device_coordinator.add_devices([mBrain1, mBrain2, tobii1, tobii2])
+        device_coordinator.add_devices([])
 
         screen.fill(white)  # Clear the screen with white background
         pygame.display.flip()
-        running = True
-        start = False
-        rest = False
-        while running:
-            for event in pygame.event.get():
-                #display_number(numbers[current_index])  # Update the display
-                if event.type == pygame.QUIT:  # Exit if the window is closed
-                    running = False
-                    break
-                elif event.type == pygame.KEYDOWN:  # Detect key presses        
-                    if event.key == pygame.K_SPACE:  # Check if the key is the s, stop data recording
-                        if not start:
-                            start = True
-                        elif not rest:
-                            print(f" stop {numbers[current_index]}, INDEX {current_index}")
-                            device_coordinator.dispatch(stop_message(experiment_id, numbers[current_index]))
-                            if (current_index+1)%rest_index == 0 and rest is False:
-                                rest = True
-                                device_coordinator.dispatch(save_message(experiment_id))
-                                display("Rest", screen, font)
+        i = 0
+        for items in block:
+            running = True
+            start = False
+            rest = False
+            print(f"items {items}")
+            font = pygame.font.Font(None, 100)
+            display(get_description(block_desc[i]), screen, font)  # Display the first item
+            experiment_id = block_desc[i]
+            current_index = -1
+            while running:
+                for event in pygame.event.get():
+                    #display_number(numbers[current_index])  # Update the display
+                    if event.type == pygame.QUIT:  # Exit if the window is closed
+                        running = False
+                        break
+                    elif event.type == pygame.KEYDOWN:  # Detect key presses        
+                        if event.key == pygame.K_SPACE:  # Check if the key is the s, stop data recording
+                            if not start:
+                                start = True
+                            elif not rest:
+                                print(f" stop {items[current_index]}, INDEX {current_index}")
+                                device_coordinator.dispatch(stop_message(experiment_id, items[current_index]))
+                                if (current_index+1)%rest_index == 0 and rest is False:
+                                    rest = True
+                                    device_coordinator.dispatch(save_message(experiment_id))
+                                    display("Rest", screen, font)
+                                    break
+                            if current_index+1 >= len(items):
+                                running = False
                                 break
-                        if current_index+1 >= len(numbers):
-                            running = False
-                            break
 
-                        rest = False
-                        display("+", screen, font)
-                        time.sleep(2)
-                        print("current_index", current_index)
-                        display(numbers[current_index+1], screen, font)  # Update the display
-                        current_index += 1  # Move to the next number
-                        if current_index >= len(numbers):  # Loop back to the start
-                            running = False
-                            break
-                        print(f" start {numbers[current_index]}, INDEX {current_index}")
-                        device_coordinator.dispatch(start_message(experiment_id, numbers[current_index]))
+                            rest = False
+                            display("+", screen, font)
+                            time.sleep(0.5)
+                            print("current_index", current_index)
+                            font = pygame.font.Font(None, 400)
+                            display(items[current_index+1], screen, font)  # Update the display
+                            current_index += 1  # Move to the next number
+                            if current_index >= len(items):  # Loop back to the start
+                                running = False
+                                break
+                            print(f" start {items[current_index]}, INDEX {current_index}")
+                            device_coordinator.dispatch(start_message(experiment_id, items[current_index]))
+            i += 1        
 
 
         device_coordinator.dispatch(terminate_message())
