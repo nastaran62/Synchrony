@@ -49,7 +49,7 @@ def initialize():
     # Generate random order for numbers 1 to 10
     numbers = list(range(1, 10))
     print(numbers) 
-    shapes = ['Circle', 'Square', 'Triangle', 'Rectangle', 'Pentagon', 'Hexagon', 'Diamond', 'Star', 'Heart']
+    shapes = ['Circle', 'Square', 'Triangle', 'Rectangle', 'Pentagon', 'Cross', 'Diamond', 'Star', 'Heart']
     #random.shuffle(shapes)
 
     E5 = ["Free"] * 2
@@ -189,7 +189,7 @@ def main():
         device_coordinator = DeviceCoordinator()
 
         # All
-        device_coordinator.add_devices([])
+        device_coordinator.add_devices([mBrain1, mBrain2, tobii1, tobii2])
 
         screen.fill(white)  # Clear the screen with white background
         pygame.display.flip()
@@ -202,6 +202,7 @@ def main():
             font = pygame.font.Font(None, 100)
             display(get_description(block_desc[i]), screen, font)  # Display the first item
             experiment_id = block_desc[i]
+            print(f"Experiment ID: {experiment_id}")
             current_index = -1
             while running:
                 for event in pygame.event.get():
@@ -227,7 +228,7 @@ def main():
 
                             rest = False
                             display("+", screen, font)
-                            time.sleep(0.5)
+                            time.sleep(2)
                             print("current_index", current_index)
                             font = pygame.font.Font(None, 400)
                             display(items[current_index+1], screen, font)  # Update the display
