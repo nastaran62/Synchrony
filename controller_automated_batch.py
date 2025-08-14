@@ -23,7 +23,6 @@ from octopus_sensing.devices.network_devices.http_device import HttpNetworkDevic
 # p1: Carl tobii1-port1 , com5-20E1 or com11-92D4  Android_EEG_030133
 # p2: Zane tobii2-port2 , com4-92F9,  ECL
 
-rest_index = 9  # Number of items before rest
 
 # Define colors
 white = (255, 255, 255)
@@ -52,7 +51,9 @@ def initialize():
     shapes = ['Circle', 'Square', 'Triangle', 'Rectangle', 'Pentagon', 'Cross', 'Diamond', 'Star', 'Heart']
     #random.shuffle(shapes)
 
-    E5 = ["Free"] * 2
+    E5 = ["Free1", "Free2"]
+    random.shuffle(E5)
+    E5 = ["Baseline"] + E5 
     E1 = numbers
     E1 = E1 * 2
 
@@ -81,24 +82,26 @@ def initialize():
     random.shuffle(E10)
     E10 = E10 * 2
 
-    block0_desc = ["E51", "E52"]
+    E6 = ["Free1", "Free2"]
+    random.shuffle(E6)
+    E6 = ["Baseline"] + E6 
+
+    block0_desc = ["E5"]
     block1 = [E1, E2, E7, E8]
     block1_desc = ["E1", "E2", "E7", "E8"]
     block2 = [E3, E4, E9, E10]
     block2_desc = ["E3", "E4", "E9", "E10"]
-    free = [["Free"]] * 2
-    block3_desc = ["E61", "E62"]
+
+    block3_desc = ["E6"]
     
-    return screen, font, [free, block1, block2, free], [block0_desc, block1_desc, block2_desc, block3_desc]
+    return screen, font, [[E5], block1, block2, [E5]], [block0_desc, block1_desc, block2_desc, block3_desc]
 
     # Function to display a number
 
 def get_description(experiment_id):
-    if experiment_id == "E51":
-        return "Free movement, p1 leader, p2 follower"  
+    if experiment_id in ["E5", "E6"]:
+        return "Free movement" 
     
-    elif experiment_id == "E52":
-        return "Free movement, p1 follower, p2 leader"
     elif experiment_id == "E1":
         return "Numbers, p1 leader, p2 follower"
     elif experiment_id == "E2":
@@ -107,10 +110,6 @@ def get_description(experiment_id):
         return "Shuffled numbers, p1 leader, p2 leader"
     elif experiment_id == "E4":
         return "Shuffled numbers, p1 follower, p2 leader"
-    elif experiment_id == "E61":
-        return "Free movement, p1 leader, p2 follower"
-    elif experiment_id == "E62":
-        return "Free movement, p1 follower, p2 leader"
     elif experiment_id == "E7":
         return "Shapes, p1 leader, p2 follower"
     elif experiment_id == "E8":
@@ -157,20 +156,20 @@ def main():
         mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path=f"./output/pair{pair}", saving_mode=0)
         mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030133", 250, output_path=f"./output/pair{pair}", saving_mode=0)
 
-        #shimmer1 = Shimmer3Streaming(name="shimmer1",
-        #                                saving_mode=0,
-        #                                serial_port="Com5",
-        #                                output_path=f"./output/pair{pair}")
+        shimmer1 = Shimmer3Streaming(name="shimmer1",
+                                        saving_mode=0,
+                                        serial_port="Com5",
+                                        output_path=f"./output/pair{pair}")
         
         #shimmer1 = Shimmer3Streaming(name="shimmer1",
         #                                saving_mode=0,
         #                                serial_port="Com11",
         #                                output_path=f"./output/pair{pair}")
 
-        #shimmer2 = Shimmer3Streaming(name="shimmer2",
-        #                                saving_mode=0,
-        #                                serial_port="Com4",
-        #                                output_path=f"./output/pair{pair}")
+        shimmer2 = Shimmer3Streaming(name="shimmer2",
+                                        saving_mode=0,
+                                        serial_port="Com4",
+                                        output_path=f"./output/pair{pair}")
             
         tobii1 = TobiiGlassesStreaming("192.168.1.214",
                                        50,
@@ -189,7 +188,8 @@ def main():
         device_coordinator = DeviceCoordinator()
 
         # All
-        device_coordinator.add_devices([mBrain1, mBrain2, tobii1, tobii2])
+        #device_coordinator.add_devices([mBrain1, mBrain2, tobii1, tobii2, shimmer1, shimmer2])
+        device_coordinator.add_devices([])
 
         screen.fill(white)  # Clear the screen with white background
         pygame.display.flip()
@@ -203,6 +203,10 @@ def main():
             display(get_description(block_desc[i]), screen, font)  # Display the first item
             experiment_id = block_desc[i]
             print(f"Experiment ID: {experiment_id}")
+            if experiment_id in ["E5", "E6"]:
+                rest_index = 1  # For Free1 and Free2
+            else:
+                rest_index = 9
             current_index = -1
             while running:
                 for event in pygame.event.get():
