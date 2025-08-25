@@ -48,7 +48,7 @@ def initialize():
     # Generate random order for numbers 1 to 10
     numbers = list(range(1, 10))
     print(numbers) 
-    shapes = ['Circle', 'Square', 'Triangle', 'Rectangle', 'Pentagon', 'Cross', 'Diamond', 'Star', 'Heart']
+    shapes = ['Circle', 'Square', 'Triangle', 'Rectangle', 'Pentagon', 'Cross', 'Diamond', 'Star', 'Oval']
     #random.shuffle(shapes)
 
     E5 = ["Free1", "Free2"]
@@ -84,7 +84,6 @@ def initialize():
 
     E6 = ["Free1", "Free2"]
     random.shuffle(E6)
-    E6 = ["Baseline"] + E6 
 
     block0_desc = ["E5"]
     block1 = [E1, E2, E7, E8]
@@ -107,7 +106,7 @@ def get_description(experiment_id):
     elif experiment_id == "E2":
         return "Numbers, p1 follower, p2 leader"
     elif experiment_id == "E3":
-        return "Shuffled numbers, p1 leader, p2 leader"
+        return "Shuffled numbers, p1 leader, p2 folower"
     elif experiment_id == "E4":
         return "Shuffled numbers, p1 follower, p2 leader"
     elif experiment_id == "E7":
@@ -115,7 +114,7 @@ def get_description(experiment_id):
     elif experiment_id == "E8":
         return "Shapes, p1 follower, p2 leader"
     elif experiment_id == "E9":
-        return "Shuffled shapes, p1 leader, p2 leader"
+        return "Shuffled shapes, p1 leader, p2 follower"
     elif experiment_id == "E10":
         return "Shuffled shapes, p1 follower, p2 leader"
     
