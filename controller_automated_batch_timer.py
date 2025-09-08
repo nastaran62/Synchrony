@@ -2,9 +2,12 @@ import pygame
 import argparse
 import random
 import time
+from octopus_sensing.devices import LslStreaming
 from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message, save_message
-from muse_athena_streaming import MuseAthenaStreaming
+from octopus_sensing.devices import Shimmer3Streaming
+from octopus_sensing.devices import TobiiGlassesStreaming
+from octopus_sensing.devices.network_devices.http_device import HttpNetworkDevice, SerializationTypes
 
 # experiment_id = "1"  : numbers # p1 leader, p2 follower
 # experiment_id = "2"  : numbers # p1 follower, p2 leader   
@@ -45,7 +48,7 @@ def initialize():
     # Generate random order for numbers 1 to 10
     numbers = list(range(1, 10))
     print(numbers) 
-    shapes = ['Circle', 'Square', 'Triangle', 'Rectangle', 'Pentagon', 'Cross', 'Diamond', 'Star', 'Heart']
+    shapes = ['Circle', 'Square', 'Triangle', 'Rectangle', 'Pentagon', 'Cross', 'Diamond', 'Star', 'Oval']
     #random.shuffle(shapes)
 
     E5 = ["Free1", "Free2"]
@@ -90,9 +93,22 @@ def initialize():
 
     block3_desc = ["E6"]
     
-    return screen, font, [[E5], block1, block2, [E5]], [block0_desc, block1_desc, block2_desc, block3_desc]
+    return screen, font, [[E5], block1, block2, [E6]], [block0_desc, block1_desc, block2_desc, block3_desc]
 
     # Function to display a number
+
+def waiting_for_space():
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:  # Exit if the window is closed
+                running = False
+                break
+            elif event.type == pygame.KEYDOWN:  # Detect key presses        
+                if event.key == pygame.K_SPACE:
+                    waiting = False
+                    break
+
 
 def get_description(experiment_id):
     if experiment_id in ["E5", "E6"]:
@@ -103,7 +119,7 @@ def get_description(experiment_id):
     elif experiment_id == "E2":
         return "Numbers, p1 follower, p2 leader"
     elif experiment_id == "E3":
-        return "Shuffled numbers, p1 leader, p2 leader"
+        return "Shuffled numbers, p1 leader, p2 folower"
     elif experiment_id == "E4":
         return "Shuffled numbers, p1 follower, p2 leader"
     elif experiment_id == "E7":
@@ -111,7 +127,7 @@ def get_description(experiment_id):
     elif experiment_id == "E8":
         return "Shapes, p1 follower, p2 leader"
     elif experiment_id == "E9":
-        return "Shuffled shapes, p1 leader, p2 leader"
+        return "Shuffled shapes, p1 leader, p2 follower"
     elif experiment_id == "E10":
         return "Shuffled shapes, p1 follower, p2 leader"
     
@@ -148,22 +164,50 @@ def main():
 
     try:
         # Defining sensors
-        muse1 = \
-            MuseAthenaStreaming("muse1", 5500, 256, saving_mode=0, output_path=f"./output/pair{pair}")
-        muse2 = \
-            MuseAthenaStreaming("muse2", 5600, 256, saving_mode=0, output_path=f"./output/pair{pair}")
+        
+        mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path=f"./output/pair{pair}", saving_mode=0)
+        mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030133", 250, output_path=f"./output/pair{pair}", saving_mode=0)
+
+        shimmer1 = Shimmer3Streaming(name="shimmer1",
+                                        saving_mode=0,
+                                        serial_port="/dev/rfcomm0",
+                                        output_path=f"./output/pair{pair}")
+        
+        #shimmer1 = Shimmer3Streaming(name="shimmer1",
+        #                                saving_mode=0,
+        #                                serial_port="Com11",
+        #                                output_path=f"./output/pair{pair}")
+
+        shimmer2 = Shimmer3Streaming(name="shimmer2",
+                                        saving_mode=0,
+                                        serial_port="/dev/rfcomm1",
+                                        output_path=f"./output/pair{pair}")
+            
+        tobii1 = TobiiGlassesStreaming("192.168.1.214",
+                                       50,
+                                       name="tobii1",
+                                       saving_mode=0,
+                                       output_path=f"./output/pair{pair}")
+        tobii2 = TobiiGlassesStreaming("192.168.1.232",
+                                       50,
+                                       name="tobii2",
+                                       saving_mode=0,
+                                       output_path=f"./output/pair{pair}")
+        
 
         # Defining device coordinator and adding sensors to it
         #remote_device = HttpNetworkDevice(["http://localhost:9331"], serialization_type=SerializationTypes.PICKLE)
         device_coordinator = DeviceCoordinator()
 
         # All
-        device_coordinator.add_devices([muse1, muse2])
+        device_coordinator.add_devices([mBrain1, mBrain2, tobii1, tobii2, shimmer1, shimmer2])
+        #device_coordinator.add_devices([])
 
         screen.fill(white)  # Clear the screen with white background
         pygame.display.flip()
         i = 0
         for items in block:
+            print(items)
             running = True
             start = False
             rest = False
@@ -171,6 +215,9 @@ def main():
             font = pygame.font.Font(None, 100)
             display(get_description(block_desc[i]), screen, font)  # Display the first item
             experiment_id = block_desc[i]
+            waiting_for_space()
+
+
             print(f"Experiment ID: {experiment_id}")
             if experiment_id in ["E5", "E6"]:
                 rest_index = 1  # For Free1 and Free2
@@ -178,39 +225,39 @@ def main():
                 rest_index = 9
             current_index = -1
             while running:
-                for event in pygame.event.get():
-                    #display_number(numbers[current_index])  # Update the display
-                    if event.type == pygame.QUIT:  # Exit if the window is closed
-                        running = False
-                        break
-                    elif event.type == pygame.KEYDOWN:  # Detect key presses        
-                        if event.key == pygame.K_SPACE:  # Check if the key is the s, stop data recording
-                            if not start:
-                                start = True
-                            elif not rest:
-                                print(f" stop {items[current_index]}, INDEX {current_index}")
-                                device_coordinator.dispatch(stop_message(experiment_id, items[current_index]))
-                                if (current_index+1)%rest_index == 0 and rest is False:
-                                    rest = True
-                                    device_coordinator.dispatch(save_message(experiment_id))
-                                    display("Rest", screen, font)
-                                    break
-                            if current_index+1 >= len(items):
-                                running = False
-                                break
 
-                            rest = False
-                            display("+", screen, font)
-                            time.sleep(2)
-                            print("current_index", current_index)
-                            font = pygame.font.Font(None, 400)
-                            display(items[current_index+1], screen, font)  # Update the display
-                            current_index += 1  # Move to the next number
-                            if current_index >= len(items):  # Loop back to the start
-                                running = False
-                                break
-                            print(f" start {items[current_index]}, INDEX {current_index}")
-                            device_coordinator.dispatch(start_message(experiment_id, items[current_index]))
+                #elif event.type == pygame.KEYDOWN:  # Detect key presses        
+                #    if event.key == pygame.K_SPACE:  # Check if the key is the s, stop data recording
+                if not start:
+                    start = True
+                elif not rest:
+                    print(f" stop {items[current_index]}, INDEX {current_index}")
+                    device_coordinator.dispatch(stop_message(experiment_id, items[current_index]))
+                    if (current_index+1)%rest_index == 0 and rest is False:
+                        rest = True
+                        device_coordinator.dispatch(save_message(experiment_id))
+                        display("Rest", screen, font)
+                        waiting_for_space()
+                if current_index+1 >= len(items):
+                    running = False
+                    break
+
+                rest = False
+                display("+", screen, font)
+                time.sleep(2)
+                print("current_index", current_index)
+                font = pygame.font.Font(None, 400)
+                display(items[current_index+1], screen, font)  # Update the display
+                current_index += 1  # Move to the next number
+                if current_index >= len(items):  # Loop back to the start
+                    running = False
+                    break
+                print(f" start {items[current_index]}, INDEX {current_index}")
+                device_coordinator.dispatch(start_message(experiment_id, items[current_index]))
+                if experiment_id in ["E5", "E6"]:
+                    time.sleep(45)  # Display Free movement for 45 seconds
+                else:
+                    time.sleep(8)  # Display each number/shape for 8 seconds
             i += 1        
 
 

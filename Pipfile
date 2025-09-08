@@ -4,9 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-
 octopus-sensing = "4.3.3"
 pygame = "*"
+matplotlib = "*"
+pandas = "*"
+scikit-learn = "*"
 
 [dev-packages]
 
