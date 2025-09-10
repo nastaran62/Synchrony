@@ -91,11 +91,11 @@ class MuseAthenaStreaming(RealtimeDataDevice):
                  **kwargs):
         super().__init__(**kwargs)
         self._name = name
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind((host, port))
-        sock.listen(1)
-        self.conn, addr = sock.accept()
-        print(f"Client connected: {addr}")
+        print(f"initializing {name}")
+        self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._host = host
+        self._port = port
+        
 
         self._stream_data: List[Dict[str, Any]] = []
         
@@ -114,6 +114,10 @@ class MuseAthenaStreaming(RealtimeDataDevice):
         '''
         Listening to the message queue and manage messages
         '''
+        self._sock.bind((self._host, self._port))
+        self._sock.listen(1)
+        self.conn, addr = self._sock.accept()
+        print(f"Client connected: {addr}")
         print("in muse athena streaming _run")
         self._loop_thread = threading.Thread(target=self._stream_loop)
         self._loop_thread.start()
@@ -188,7 +192,6 @@ class MuseAthenaStreaming(RealtimeDataDevice):
             # Split messages by newline (assuming each JSON object ends with '\n')
             if buffer.endswith(b'\n'):
                 json_data = json.loads(buffer[:-1])
-                print(json_data)
                 buffer = b''
                 # Add timestamp to the JSON data
                 json_data['timestamp'] = (time.time() * 1000)

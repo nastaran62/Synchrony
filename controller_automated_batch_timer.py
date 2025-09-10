@@ -8,6 +8,7 @@ from octopus_sensing.common.message_creators import start_message, stop_message,
 from octopus_sensing.devices import Shimmer3Streaming
 from octopus_sensing.devices import TobiiGlassesStreaming
 from octopus_sensing.devices.network_devices.http_device import HttpNetworkDevice, SerializationTypes
+from muse_study.muse_athena_streaming import MuseAthenaStreaming
 
 # experiment_id = "1"  : numbers # p1 leader, p2 follower
 # experiment_id = "2"  : numbers # p1 follower, p2 leader   
@@ -164,6 +165,11 @@ def main():
 
     try:
         # Defining sensors
+        print("Add devices")
+        muse1 = \
+            MuseAthenaStreaming("museBE3A", 5500, 256, saving_mode=0, output_path=f"./output/pair{pair}")
+        muse2 = \
+            MuseAthenaStreaming("museF19E", 5600, 256, saving_mode=0, output_path=f"./output/pair{pair}")
         
         mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path=f"./output/pair{pair}", saving_mode=0)
         mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030133", 250, output_path=f"./output/pair{pair}", saving_mode=0)
@@ -200,8 +206,7 @@ def main():
         device_coordinator = DeviceCoordinator()
 
         # All
-        device_coordinator.add_devices([mBrain1, mBrain2, tobii1, tobii2, shimmer1, shimmer2])
-        #device_coordinator.add_devices([])
+        device_coordinator.add_devices([muse1, muse2])
 
         screen.fill(white)  # Clear the screen with white background
         pygame.display.flip()
@@ -226,14 +231,15 @@ def main():
             current_index = -1
             while running:
 
-                #elif event.type == pygame.KEYDOWN:  # Detect key presses        
-                #    if event.key == pygame.K_SPACE:  # Check if the key is the s, stop data recording
                 if not start:
                     start = True
                 elif not rest:
                     print(f" stop {items[current_index]}, INDEX {current_index}")
                     device_coordinator.dispatch(stop_message(experiment_id, items[current_index]))
                     if (current_index+1)%rest_index == 0 and rest is False:
+                        if current_index+1 >= len(items):
+                            running = False
+                            break
                         rest = True
                         device_coordinator.dispatch(save_message(experiment_id))
                         display("Rest", screen, font)
@@ -254,10 +260,20 @@ def main():
                     break
                 print(f" start {items[current_index]}, INDEX {current_index}")
                 device_coordinator.dispatch(start_message(experiment_id, items[current_index]))
+                loop = True
+                start_ticks = pygame.time.get_ticks()
                 if experiment_id in ["E5", "E6"]:
-                    time.sleep(45)  # Display Free movement for 45 seconds
+                    while loop:
+                        # Calculate elapsed time in seconds
+                        seconds = (pygame.time.get_ticks() - start_ticks) // 1000
+                        if seconds >= 120:
+                            loop = False
                 else:
-                    time.sleep(8)  # Display each number/shape for 8 seconds
+                    while loop:
+                        # Calculate elapsed time in seconds
+                        seconds = (pygame.time.get_ticks() - start_ticks) // 1000
+                        if seconds >= 8:
+                            loop = False
             i += 1        
 
 
