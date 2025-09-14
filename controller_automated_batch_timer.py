@@ -167,9 +167,9 @@ def main():
         # Defining sensors
         print("Add devices")
         muse1 = \
-            MuseAthenaStreaming("museBE3A", 5500, 256, saving_mode=0, output_path=f"./output/pair{pair}")
+            MuseAthenaStreaming("museBE3A", 5700, 256, saving_mode=0, output_path=f"./output/pair{pair}")
         muse2 = \
-            MuseAthenaStreaming("museF19E", 5600, 256, saving_mode=0, output_path=f"./output/pair{pair}")
+            MuseAthenaStreaming("museF19E", 5800, 256, saving_mode=0, output_path=f"./output/pair{pair}")
         
         mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path=f"./output/pair{pair}", saving_mode=0)
         mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030133", 250, output_path=f"./output/pair{pair}", saving_mode=0)
