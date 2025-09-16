@@ -14,6 +14,7 @@ fnirs_list = []
 accel_list = []
 gyro_list = []
 ppg_list = []
+drl_ref_list = []
 marker = None
 
 #get the name of input file as an argument with argparse
@@ -44,7 +45,7 @@ def interpret_json():
 
     # This function processes the JSON data and extracts relevant information.
     # Initialize lists to store data from different sensors
-    global eeg_list, fnirs_list, accel_list, gyro_list, ppg_list, marker
+    global eeg_list, fnirs_list, accel_list, gyro_list, ppg_list, drl_ref_list, marker
 
     # Example: print the keys and values in the JSON
     for json_data in json_lines:
@@ -62,6 +63,8 @@ def interpret_json():
                 gyro_list.append(value)
             elif key == "PPG":
                 ppg_list.append(value)
+            elif key == "DRL_REF":
+                drl_ref_list.append(value)
             elif key == "marker":
                 if len(eeg_list) > 0:
                     eeg_list[-1].append(value)
@@ -87,6 +90,9 @@ def interpret_json():
             f.write(",".join(map(str, item)) + "\n")
     with open(os.path.join(output_path, "gyro_data.csv"), "w") as f:
         for item in gyro_list:
+            f.write(",".join(map(str, item)) + "\n")
+    with open(os.path.join(output_path, "drl_ref_data.csv"), "w") as f:
+        for item in drl_ref_list:
             f.write(",".join(map(str, item)) + "\n")
 
 interpret_json()

@@ -118,7 +118,6 @@ class MuseAthenaStreaming(RealtimeDataDevice):
         self._sock.listen(1)
         self.conn, addr = self._sock.accept()
         print(f"Client connected: {addr}")
-        print("in muse athena streaming _run")
         self._loop_thread = threading.Thread(target=self._stream_loop)
         self._loop_thread.start()
 
@@ -178,6 +177,7 @@ class MuseAthenaStreaming(RealtimeDataDevice):
 
     def _stream_loop(self):
         buffer = b''
+        check = 0
         while True:
             if self._terminate is True:
                 print("connection closed")
@@ -195,7 +195,9 @@ class MuseAthenaStreaming(RealtimeDataDevice):
                 buffer = b''
                 # Add timestamp to the JSON data
                 json_data['timestamp'] = (time.time() * 1000)
-
+                if check == 0:
+                    print(f"Received data: {json_data} from muse: {self._name}")
+                    check = 1
                 self._stream_data.append(json_data)
                 if self._trigger is not None:
                     trigger = {"marker": self._trigger}
