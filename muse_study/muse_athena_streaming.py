@@ -95,6 +95,8 @@ class MuseAthenaStreaming(RealtimeDataDevice):
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._host = host
         self._port = port
+
+        print("This is: Muse Athena Streaming Device", self._host, self._port)
         
 
         self._stream_data: List[Dict[str, Any]] = []
@@ -114,10 +116,15 @@ class MuseAthenaStreaming(RealtimeDataDevice):
         '''
         Listening to the message queue and manage messages
         '''
-        self._sock.bind((self._host, self._port))
-        self._sock.listen(1)
-        self.conn, addr = self._sock.accept()
-        print(f"Client connected: {addr}")
+        print("Ruuuuuuuuuuunning Muse Athena Streaming Device")
+        try:
+            self._sock.bind((self._host, self._port))
+            self._sock.listen(1)
+            self.conn, addr = self._sock.accept()
+            print(f"Client connected: {addr}")
+        except Exception as e:
+            print(f"Error setting up socket: {e}")
+            sys.exit(1)
         self._loop_thread = threading.Thread(target=self._stream_loop)
         self._loop_thread.start()
 

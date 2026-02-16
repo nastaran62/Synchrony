@@ -166,10 +166,10 @@ def main():
     try:
         # Defining sensors
         print("Add devices")
-        muse1 = \
-            MuseAthenaStreaming("museBE3A", 5700, 256, saving_mode=0, output_path=f"./output/pair{pair}")
-        muse2 = \
-            MuseAthenaStreaming("museF19E", 5800, 256, saving_mode=0, output_path=f"./output/pair{pair}")
+        #muse1 = \
+        #    MuseAthenaStreaming("museBE3A", 5700, 256, saving_mode=0, output_path=f"./output/pair{pair}")
+        #muse2 = \
+        #    MuseAthenaStreaming("museF19E", 5800, 256, saving_mode=0, output_path=f"./output/pair{pair}")
         
         mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path=f"./output/pair{pair}", saving_mode=0)
         mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030133", 250, output_path=f"./output/pair{pair}", saving_mode=0)
@@ -186,7 +186,7 @@ def main():
 
         shimmer2 = Shimmer3Streaming(name="shimmer2",
                                         saving_mode=0,
-                                        serial_port="/dev/rfcomm1",
+                                        serial_port="/dev/rfcomm3",
                                         output_path=f"./output/pair{pair}")
             
         tobii1 = TobiiGlassesStreaming("192.168.1.214",
@@ -206,7 +206,7 @@ def main():
         device_coordinator = DeviceCoordinator()
 
         # All
-        device_coordinator.add_devices([muse1, muse2])
+        device_coordinator.add_devices([mBrain1, mBrain2, shimmer1, shimmer2])
 
         screen.fill(white)  # Clear the screen with white background
         pygame.display.flip()
@@ -266,7 +266,7 @@ def main():
                     while loop:
                         # Calculate elapsed time in seconds
                         seconds = (pygame.time.get_ticks() - start_ticks) // 1000
-                        if seconds >= 120:
+                        if seconds >= 60:
                             loop = False
                 else:
                     while loop:
