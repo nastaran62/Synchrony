@@ -17,7 +17,7 @@ def display(content, screen, font):
     pygame.display.flip()
 
 parser = argparse.ArgumentParser()
-parser.add_argument("task", help="Task ID, F: finger tapping, T: Tangram", type=str)
+parser.add_argument("task", help="Task ID, FO: finger tapping open eyes, FC: finger tapping closed eyesT: Tangram", type=str)
 parser.add_argument("pair", help="pair id (p01, p02, ...)", type=str)
 args = parser.parse_args()
 
@@ -90,7 +90,7 @@ try:
     blocks = ["Baseline", "baseline1"] 
     if experiment_id == "F":
         
-        task1 = ["P1_leader", "P2_leader", "Metronome"]
+        task1 = ["P1_leader", "P2_leader", "Metronome_fast", "Metronome_slow"]
         shuffle(task1)
         blocks.extend(task1)
     else:
