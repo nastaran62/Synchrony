@@ -18,6 +18,7 @@ green = (0, 255, 0)
 blue = (0, 0, 128)
 window_width = 1500
 window_height = 900
+
 CONV_DURATION = 480
 BASELKINE_DURATION = 2
 
@@ -71,8 +72,8 @@ def main():
     try:
         # Defining sensors
         print("Add devices")   
-        test_device = TestDeviceStreaming(256, name="TestDevice",saving_mode=0, output_path=f"./output_muse/pair{pair}")     
-        '''
+        #test_device = TestDeviceStreaming(256, name="TestDevice",saving_mode=0, output_path=f"./output_muse/pair{pair}")     
+        
         mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path=f"./output/pair{pair}", saving_mode=0)
         mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030133", 250, output_path=f"./output/pair{pair}", saving_mode=0)
 
@@ -102,13 +103,13 @@ def main():
                                        saving_mode=0,
                                        output_path=f"./output/pair{pair}")
         
-        '''
+        
         # Defining device coordinator and adding sensors to it
         #remote_device = HttpNetworkDevice(["http://localhost:9331"], serialization_type=SerializationTypes.PICKLE)
         device_coordinator = DeviceCoordinator()
 
         # All
-        device_coordinator.add_devices([test_device])
+        device_coordinator.add_devices([mBrain1, mBrain2, tobii1, tobii2, shimmer1, shimmer2])
 
         screen.fill(white)  # Clear the screen with white background
         pygame.display.flip()

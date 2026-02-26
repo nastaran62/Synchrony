@@ -33,6 +33,9 @@ blue = (0, 0, 128)
 window_width = 1500
 window_height = 900
 
+BASELKINE_DURATION = 60
+TASK_DURATION = 8
+
 def initialize():
     # Initialize Pygame
     pygame.init()
@@ -266,13 +269,13 @@ def main():
                     while loop:
                         # Calculate elapsed time in seconds
                         seconds = (pygame.time.get_ticks() - start_ticks) // 1000
-                        if seconds >= 60:
+                        if seconds >= BASELKINE_DURATION:
                             loop = False
                 else:
                     while loop:
                         # Calculate elapsed time in seconds
                         seconds = (pygame.time.get_ticks() - start_ticks) // 1000
-                        if seconds >= 8:
+                        if seconds >= TASK_DURATION:
                             loop = False
             i += 1        
 
