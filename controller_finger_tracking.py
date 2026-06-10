@@ -8,7 +8,7 @@ from octopus_sensing.common.message_creators import start_message, stop_message,
 from octopus_sensing.devices import Shimmer3Streaming
 from octopus_sensing.devices import TobiiGlassesStreaming
 from octopus_sensing.devices.network_devices.http_device import HttpNetworkDevice, SerializationTypes
-from muse_study.muse_athena_streaming import MuseAthenaStreaming
+from octopus_sensing.devices.testdevice_streaming import TestDeviceStreaming
 
 # experiment_id = "1"  : numbers # p1 leader, p2 follower
 # experiment_id = "2"  : numbers # p1 follower, p2 leader   
@@ -49,55 +49,57 @@ def initialize():
     font = pygame.font.Font(None, 400)
     #font = pygame.font.Font('freesansbold.ttf', 32)
 
-    # Generate random order for numbers 1 to 10
-    numbers = list(range(1, 10))
-    print(numbers) 
-    shapes = ['Circle', 'Square', 'Triangle', 'Rectangle', 'Pentagon', 'Cross', 'Diamond', 'Star', 'Oval']
-    #random.shuffle(shapes)
 
-    E5 = ["Free1", "Free2"]
+    complex_shapes = ['Octagon', 'Star', 'Octagon', 'Hexagon', 'Hexagon', 'Star', 'Pentagon']
+    simple_shapes = ['Circle', 'Square', 'Triangle', 'Rectangle', 'Cross', 'Diamond', 'Oval']
+    objects = ["Cloud", "House", "Tree", "Sun", "Mountains", "Leaf", "Car"]
+
+    E1 = ["Baseline1"] + ["Baseline2"] 
+    
+    E2 = ["Free1", "Free2"]
+    random.shuffle(E2)
+
+    E3 = simple_shapes
+    random.shuffle(E3)
+
+    E4 = simple_shapes
+    random.shuffle(E4)
+
+    E5 = complex_shapes
     random.shuffle(E5)
-    E5 = ["Baseline"] + E5 
-    E1 = numbers
-    E1 = E1 * 2
 
-    E2 = numbers
-    E2 = E2 * 2
-
-    items = numbers
-    random.shuffle(items)
-    E3 = items * 2
-
-    items = numbers
-    random.shuffle(items)
-    E4 = items * 2
-
-    E7 = shapes
-    E7 = E7 * 2
-
-    E8 = shapes
-    E8 = E8 * 2
-
-    E9 = shapes
-    random.shuffle(E9)
-    E9 = E9 * 2
-
-    E10 = shapes
-    random.shuffle(E10)
-    E10 = E10 * 2
-
-    E6 = ["Free1", "Free2"]
+    E6 = complex_shapes
     random.shuffle(E6)
 
-    block0_desc = ["E5"]
-    block1 = [E1, E2, E7, E8]
-    block1_desc = ["E1", "E2", "E7", "E8"]
-    block2 = [E3, E4, E9, E10]
-    block2_desc = ["E3", "E4", "E9", "E10"]
 
-    block3_desc = ["E6"]
+    E7 = objects
+    random.shuffle(E7)
+
+    E8 = objects
+    random.shuffle(E8)
+
+    E9 = E3.copy()
+    random.shuffle(E9)
+
+    E10 = E4.copy()
+    random.shuffle(E10)
+
+    E11 = E5.copy()
+    random.shuffle(E11)
+
+    E12 = E6.copy()
+    random.shuffle(E12)
+
+    block0_desc = ["E1"]
+    block1_desc = ["E2"]
+    block2_desc = ["E3", "E4"]
+    block3_desc = ["E5", "E6"]
+    block4_desc = ["E7", "E8"]
+    block5_desc = ["E9", "E10"]
+    block6_desc = ["E11", "E12"]
     
-    return screen, font, [[E5], block1, block2, [E6]], [block0_desc, block1_desc, block2_desc, block3_desc]
+    return (screen, font, [[E1], [E2], [E3,E4], [E5, E6], [E7, E8], [E9, E10], [E11, E12]],
+                         [block0_desc, block1_desc, block2_desc, block3_desc, block4_desc, block5_desc, block6_desc])
 
     # Function to display a number
 
@@ -115,25 +117,30 @@ def waiting_for_space():
 
 
 def get_description(experiment_id):
-    if experiment_id in ["E5", "E6"]:
-        return "Free movement" 
-    
-    elif experiment_id == "E1":
-        return "Numbers, p1 leader, p2 follower"
+    if experiment_id == "E1":
+        return "Baseline"
     elif experiment_id == "E2":
-        return "Numbers, p1 follower, p2 leader"
+        return "Free movement"
     elif experiment_id == "E3":
-        return "Shuffled numbers, p1 leader, p2 folower"
+        return "Simple Shapes, p1 leader, p2 folower"
     elif experiment_id == "E4":
-        return "Shuffled numbers, p1 follower, p2 leader"
+        return "Simple Shapes, p2 leader, p1 follower"
+    elif experiment_id == "E5":
+        return "Complex Shapes, p1 leader, p2 follower"
+    elif experiment_id == "E6":
+        return "Complex Shapes, p2 leader, p1 follower"
     elif experiment_id == "E7":
-        return "Shapes, p1 leader, p2 follower"
+        return "Objects, p1 leader, p2 follower"
     elif experiment_id == "E8":
-        return "Shapes, p1 follower, p2 leader"
+        return "Objects, p2 leader, p1 follower"
     elif experiment_id == "E9":
-        return "Shuffled shapes, p1 leader, p2 follower"
+        return "Simple Shapes, p1 leader, p2 folower"
     elif experiment_id == "E10":
-        return "Shuffled shapes, p1 follower, p2 leader"
+        return "Simple Shapes, p2 leader, p1 follower"
+    elif experiment_id == "E11":
+        return "Complex Shapes, p1 leader, p2 follower"
+    elif experiment_id == "E12":
+        return "Complex Shapes, p2 leader, p1 follower"
     
 
 def display(content, screen, font):
@@ -145,7 +152,7 @@ def display(content, screen, font):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("block", help="Block number(0, 1, 2, or 3), 1 ordered, 2 shuffled", type=int)
+    parser.add_argument("block", help="Block number(0, 1, 2, 3, 4, 5, 6), 1 ordered, 2 shuffled", type=int)
     parser.add_argument("pair", help="pair id (p01, p02, ...)", type=str)
     args = parser.parse_args()
     screen, font, blocks, blocks_desc = initialize()
@@ -173,6 +180,8 @@ def main():
         #    MuseAthenaStreaming("museBE3A", 5700, 256, saving_mode=0, output_path=f"./output/pair{pair}")
         #muse2 = \
         #    MuseAthenaStreaming("museF19E", 5800, 256, saving_mode=0, output_path=f"./output/pair{pair}")
+        test_device = TestDeviceStreaming(256, name="TestDevice",saving_mode=0, output_path=f"./pair{pair}")
+        
         
         mBrain1 = LslStreaming("mbtrain1", "name", "EEG1", 250, output_path=f"./output/pair{pair}", saving_mode=0)
         mBrain2 = LslStreaming("mbtrain2", "name", "Android_EEG_030133", 250, output_path=f"./output/pair{pair}", saving_mode=0)
@@ -189,15 +198,15 @@ def main():
 
         shimmer2 = Shimmer3Streaming(name="shimmer2",
                                         saving_mode=0,
-                                        serial_port="/dev/rfcomm3",
+                                        serial_port="/dev/rfcomm1",
                                         output_path=f"./output/pair{pair}")
             
-        tobii1 = TobiiGlassesStreaming("192.168.1.214",
+        tobii1 = TobiiGlassesStreaming("192.168.10.218",
                                        50,
                                        name="tobii1",
                                        saving_mode=0,
                                        output_path=f"./output/pair{pair}")
-        tobii2 = TobiiGlassesStreaming("192.168.1.232",
+        tobii2 = TobiiGlassesStreaming("192.168.10.202",
                                        50,
                                        name="tobii2",
                                        saving_mode=0,
@@ -206,11 +215,12 @@ def main():
 
         # Defining device coordinator and adding sensors to it
         #remote_device = HttpNetworkDevice(["http://localhost:9331"], serialization_type=SerializationTypes.PICKLE)
+        
         device_coordinator = DeviceCoordinator()
-
+        
         # All
-        device_coordinator.add_devices([mBrain1, mBrain2, shimmer1, shimmer2])
-
+        device_coordinator.add_devices([mBrain1, mBrain2, tobii1, tobii2, shimmer1, shimmer2])
+    
         screen.fill(white)  # Clear the screen with white background
         pygame.display.flip()
         i = 0
@@ -227,7 +237,7 @@ def main():
 
 
             print(f"Experiment ID: {experiment_id}")
-            if experiment_id in ["E5", "E6"]:
+            if experiment_id in ["E1", "E2"]:
                 rest_index = 1  # For Free1 and Free2
             else:
                 rest_index = 9
@@ -265,7 +275,7 @@ def main():
                 device_coordinator.dispatch(start_message(experiment_id, items[current_index]))
                 loop = True
                 start_ticks = pygame.time.get_ticks()
-                if experiment_id in ["E5", "E6"]:
+                if experiment_id in ["E1", "E2"]:
                     while loop:
                         # Calculate elapsed time in seconds
                         seconds = (pygame.time.get_ticks() - start_ticks) // 1000
